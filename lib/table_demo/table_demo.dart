@@ -3,6 +3,20 @@ part of table_directives;
 @Component(
     selector: 'table-demo',
     template: '''
+<div *ngIf="ff != null && ff.filters != null">
+  <div *ngFor="let filterItem of ff.filters" style="display: inline;">
+    <div class="dropdown" >
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" >{{filterItem.name}}
+            <span class="caret"></span></button>
+        <ul class="dropdown-menu">
+            <li *ngFor="let item of filterItem.data.keys">
+              <a href="#"><input type="checkbox">{{item}}({{filterItem.data[item].count}})</a>
+            </li>
+        </ul>
+    </div>
+  </div>
+</div>
+
 <table class="table table-striped table-bordered dataTable"
        role="grid" style="width: 100%;">
   <thead>
@@ -30,15 +44,26 @@ class TableDemo {
 
   @Input() set rows(List rows) {
     if(rows != null) {
+
       _rows = rows;
       rowsAux = rows.toList();
+      ff = new FilterComposite(filterColumns,rowsAux);
     }
   }
   List rowsAux;
-
+  FilterComposite ff;
   @Output() EventEmitter tableChanged = new EventEmitter();
 
   List<ColumnDemo> columns = [];
+  List filterColumns = ['gender', 'department', 'address.city'];
+  FilterSet testFilter;
+
+  List<FilterSet> getFilters(){
+    return ff == null? new List<FilterSet>() : ff.filters;
+  }
+  TableDemo(){
+
+  }
 
   void toggleSort(ColumnDemo column, MouseEvent event) {
     event.preventDefault();
@@ -64,18 +89,77 @@ class TableDemo {
     } else {
       rowsAux = _rows.toList();
     }
+
+    rowsAux.forEach((r){
+
+    });
+
     columns.forEach((c) {
       if (c.fieldName != column.fieldName && c.sort != 'NO_SORTABLE')
         c.sort = 'NONE';
     });
   }
 
+  bool isExclude(){
+
+    return false;
+  }
   /// Gets the data from the value of the row with the specified field name.
   String getData(dynamic row, dynamic fieldsName, [String delimiter = ', ']) {
     var res = fieldsName.split('.')
                         .fold(row, (prev, String curr) =>
                             prev[curr])
                         .toString();
+    return res;
+  }
+}
+class FilterItem
+{
+  bool checked = false;
+  int count =1;
+}
+class FilterSet{
+  String name;
+  Map<String, FilterItem> data;
+
+  FilterSet(this.name){
+    this.data = new Map<String, FilterItem>();
+  }
+
+  void AddFilterKey(String s) {
+    if(data.containsKey(s)){
+      data[s].count++;
+    }
+    else{
+      data[s] = new FilterItem();
+    }
+  }
+}
+
+class FilterComposite{
+
+  FilterSet filter = new FilterSet('her her');
+
+  String name = "test";
+  List<FilterSet> filters = new List<FilterSet>();
+
+  FilterComposite(List<String> names, List filterableData){
+
+    names.forEach((n) {
+      var filter = new FilterSet(n);
+      filterableData.forEach((d){
+        filter.AddFilterKey(getData(d,n));
+      });
+      filters.add(filter);
+    });
+
+  }
+
+  String getData(dynamic row, dynamic fieldsName, [String delimiter = ', ']) {
+    var res = fieldsName.split('.')
+        .fold(row, (prev, String curr) =>
+    prev[curr])
+        .toString();
     return res;
   }
 }
