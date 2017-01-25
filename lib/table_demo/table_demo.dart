@@ -10,7 +10,7 @@ part of table_directives;
             <span class="caret"></span></button>
         <ul class="dropdown-menu">
             <li *ngFor="let item of filterItem.data.keys">
-              <a href="#"><input type="checkbox">{{item}}({{filterItem.data[item].count}})</a>
+              <a href="#"><input type="checkbox" (click)="toggleCheckBox(item, filterItem.name, \$event.target.checked)" [(ngModel)]="filterItem.data[item].checked">{{item}}({{filterItem.data[item].count}})</a>
             </li>
         </ul>
     </div>
@@ -63,6 +63,35 @@ class TableDemo {
   }
   TableDemo(){
 
+  }
+
+  void toggleCheckBox(String s, String name, bool isChecked)
+  {
+    print('toggleCheckBox ' + s + ' ' + name + ' ' + isChecked.toString());
+
+    ff.filters.where((f){
+      return f.name == name;
+    }).first.data[s].checked = isChecked;
+
+    rowsAux = _rows.toList();
+
+
+    rowsAux.removeWhere((r) {
+        return r[name] == s;
+      });
+
+
+    var rebuiltFilter = new FilterComposite(filterColumns,rowsAux);
+    for(int t=0; t<ff.filters.length; t++ )
+    {
+      ff.filters[t].data.keys.forEach((k){
+        if(ff.filters[t].data[k].checked){
+          rebuiltFilter.filters[t].data[k] = ff.filters[t].data[k];
+        }
+      });
+
+    }
+    ff = rebuiltFilter;
   }
 
   void toggleSort(ColumnDemo column, MouseEvent event) {
@@ -120,7 +149,7 @@ class FilterItem
 }
 class FilterSet{
   String name;
-  Map<String, FilterItem> data;
+  SplayTreeMap<String, FilterItem> data;
 
   FilterSet(this.name){
     this.data = new Map<String, FilterItem>();
@@ -155,7 +184,7 @@ class FilterComposite{
 
   }
 
-  String getData(dynamic row, dynamic fieldsName, [String delimiter = ', ']) {
+  String getData(dynamic row, dynamic fieldsName) {
     var res = fieldsName.split('.')
         .fold(row, (prev, String curr) =>
     prev[curr])
