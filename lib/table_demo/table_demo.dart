@@ -77,7 +77,7 @@ class TableDemo {
 
 
     rowsAux.removeWhere((r) {
-        return getData(r, filterCategory) == filterValue;
+        return r.getFieldValue( filterCategory) == filterValue;
       });
 
 
@@ -111,8 +111,8 @@ class TableDemo {
     }
     if (column.sort != 'NONE') {
       rowsAux.sort((r1, r2) {
-        var comparison = getData(r1, column.fieldName).compareTo(
-            getData(r2, column.fieldName));
+        var comparison = r1.getFieldValue(column.fieldName).compareTo(
+            r2.getFieldValue(column.fieldName));
         return column.sort == 'ASC' ? comparison : -comparison;
       });
     } else {
@@ -128,18 +128,6 @@ class TableDemo {
   bool isExclude(){
 
     return false;
-  }
-
-  String getData(dynamic object, String fieldsName) {
-
-    var names = fieldsName.split('.');
-    var reflectedObject = object;
-    names.forEach((n){
-      InstanceMirror objectMirror = reflect(reflectedObject);
-      reflectedObject = objectMirror.getField( new Symbol(n)).reflectee;
-    });
-
-    return reflectedObject;
   }
 }
 class FilterItem
@@ -174,21 +162,9 @@ class FilterComposite{
     names.forEach((n) {
       var filter = new FilterSet(n);
       filterableData.forEach((d){
-        filter.AddFilterKey(getData(d,n));
+        filter.AddFilterKey(d.getFieldValue(n));
       });
       filters.add(filter);
     });
-  }
-
-  String getData(dynamic object, String fieldsName) {
-
-    var names = fieldsName.split('.');
-    var reflectedObject = object;
-    names.forEach((n){
-      InstanceMirror objectMirror = reflect(reflectedObject);
-      reflectedObject = objectMirror.getField( new Symbol(n)).reflectee;
-    });
-
-    return reflectedObject;
   }
 }
