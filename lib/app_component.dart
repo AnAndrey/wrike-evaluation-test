@@ -18,7 +18,7 @@ import 'table_demo/table_directives.dart';
 )
 class AppComponent implements OnInit {
   final ContactService contactService;
-  List names;
+  List contacts;
 
   AppComponent (this.contactService)
   {
@@ -28,10 +28,10 @@ class AppComponent implements OnInit {
   ngOnInit() async {
     try {
       await contactService.getContacts();
-      names = contactService.contacts;
+      contacts = contactService.contacts;
 
     } catch (arrr) {
-      print('Error initializing pirate names: $arrr');
+      print('Error initializing names: $arrr');
     }
   }
 }

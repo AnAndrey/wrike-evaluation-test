@@ -1,5 +1,5 @@
 library table_directives;
-
+import 'dart:mirrors';
 import 'dart:html';
 import "package:angular2/core.dart";
 import "dart:collection";

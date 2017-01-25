@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:html';
+import 'package:dartson/dartson.dart';
 
 import 'package:angular2/core.dart';
 
@@ -9,10 +9,37 @@ const _namesPath =
 
 @Injectable()
 class ContactService {
-  List contacts;
+  List<ContactDemo> contacts;
 
   Future getContacts() async {
-    var jsonString = await HttpRequest.getString(_namesPath);
-    return contacts = JSON.decode(jsonString);
+    try {
+      var jsonString = await HttpRequest.getString(_namesPath);
+      var dson = new Dartson.JSON();
+
+      return contacts = dson.decode(jsonString, new ContactDemo(), true);
+    } catch (arrr) {
+      print('Error initializing names: $arrr');
+    }
+
   }
+}
+
+
+@Entity()
+class ContactDemo{
+  String id;
+  String name;
+  int age;
+  String gender;
+  String department;
+  AddressDemo address;
+
+  @Property(ignore:true)
+  bool isActive;
+}
+
+@Entity()
+class AddressDemo{
+  String city;
+  String street;
 }

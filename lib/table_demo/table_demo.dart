@@ -30,11 +30,11 @@ part of table_directives;
   </thead>
   <tbody>
   <tr *ngFor="let item of rowsAux">
-      <td>{{item['name']}}</td>
-      <td class="text-right">{{item['age']}}</td>
-      <td >{{item['gender']}}</td>
-      <td >{{item['department']}}</td>
-      <td >{{item['address']['city']}}, {{item['address']['street']}}</td>
+      <td>{{item.name}}</td>
+      <td class="text-right">{{item.age}}</td>
+      <td >{{item.gender}}</td>
+      <td >{{item.department}}</td>
+      <td >{{item.address.city}}, {{item.address.street}}</td>
   </tr>
   </tbody>
 </table>
@@ -65,19 +65,19 @@ class TableDemo {
 
   }
 
-  void toggleCheckBox(String s, String name, bool isChecked)
+  void toggleCheckBox(String filterValue, String filterCategory, bool isChecked)
   {
-    print('toggleCheckBox ' + s + ' ' + name + ' ' + isChecked.toString());
+    print('toggleCheckBox ' + filterValue + ' ' + filterCategory + ' ' + isChecked.toString());
 
     ff.filters.where((f){
-      return f.name == name;
-    }).first.data[s].checked = isChecked;
+      return f.name == filterCategory;
+    }).first.data[filterValue].checked = isChecked;
 
     rowsAux = _rows.toList();
 
 
     rowsAux.removeWhere((r) {
-        return r[name] == s;
+        return getData(r, filterCategory) == filterValue;
       });
 
 
@@ -119,10 +119,6 @@ class TableDemo {
       rowsAux = _rows.toList();
     }
 
-    rowsAux.forEach((r){
-
-    });
-
     columns.forEach((c) {
       if (c.fieldName != column.fieldName && c.sort != 'NO_SORTABLE')
         c.sort = 'NONE';
@@ -133,13 +129,17 @@ class TableDemo {
 
     return false;
   }
-  /// Gets the data from the value of the row with the specified field name.
-  String getData(dynamic row, dynamic fieldsName, [String delimiter = ', ']) {
-    var res = fieldsName.split('.')
-                        .fold(row, (prev, String curr) =>
-                            prev[curr])
-                        .toString();
-    return res;
+
+  String getData(dynamic object, String fieldsName) {
+
+    var names = fieldsName.split('.');
+    var reflectedObject = object;
+    names.forEach((n){
+      InstanceMirror objectMirror = reflect(reflectedObject);
+      reflectedObject = objectMirror.getField( new Symbol(n)).reflectee;
+    });
+
+    return reflectedObject;
   }
 }
 class FilterItem
@@ -152,7 +152,7 @@ class FilterSet{
   SplayTreeMap<String, FilterItem> data;
 
   FilterSet(this.name){
-    this.data = new Map<String, FilterItem>();
+    this.data = new SplayTreeMap<String, FilterItem>();
   }
 
   void AddFilterKey(String s) {
@@ -167,9 +167,6 @@ class FilterSet{
 
 class FilterComposite{
 
-  FilterSet filter = new FilterSet('her her');
-
-  String name = "test";
   List<FilterSet> filters = new List<FilterSet>();
 
   FilterComposite(List<String> names, List filterableData){
@@ -181,14 +178,17 @@ class FilterComposite{
       });
       filters.add(filter);
     });
-
   }
 
-  String getData(dynamic row, dynamic fieldsName) {
-    var res = fieldsName.split('.')
-        .fold(row, (prev, String curr) =>
-    prev[curr])
-        .toString();
-    return res;
+  String getData(dynamic object, String fieldsName) {
+
+    var names = fieldsName.split('.');
+    var reflectedObject = object;
+    names.forEach((n){
+      InstanceMirror objectMirror = reflect(reflectedObject);
+      reflectedObject = objectMirror.getField( new Symbol(n)).reflectee;
+    });
+
+    return reflectedObject;
   }
 }
