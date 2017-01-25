@@ -29,7 +29,7 @@ part of table_directives;
   </tr>
   </thead>
   <tbody>
-  <tr *ngFor="let item of rowsAux">
+  <tr *ngFor="let item of rowsAux" id="{{item.id}}" [hidden]="item.isHidden">
       <td>{{item.name}}</td>
       <td class="text-right">{{item.age}}</td>
       <td >{{item.gender}}</td>
@@ -42,6 +42,9 @@ part of table_directives;
 class TableDemo {
   List _rows;
 
+  bool isHidden(dynamic item){
+    return item.isHidden;
+  }
   @Input() set rows(List rows) {
     if(rows != null) {
 
@@ -76,12 +79,12 @@ class TableDemo {
     rowsAux = _rows.toList();
 
 
-    rowsAux.removeWhere((r) {
-        return r.getFieldValue( filterCategory) == filterValue;
-      });
+    rowsAux.where((r) {return r.getFieldValue( filterCategory) == filterValue;})
+           .forEach((c){ c.isHidden = !isChecked; });
 
-
-    var rebuiltFilter = new FilterComposite(filterColumns,rowsAux);
+    // Filter with hidden categories
+    var r = rowsAux.where((c) { return !c.isHidden; }).toList();
+    var rebuiltFilter = new FilterComposite(filterColumns,r );
     for(int t=0; t<ff.filters.length; t++ )
     {
       ff.filters[t].data.keys.forEach((k){
@@ -126,7 +129,6 @@ class TableDemo {
   }
 
   bool isExclude(){
-
     return false;
   }
 }

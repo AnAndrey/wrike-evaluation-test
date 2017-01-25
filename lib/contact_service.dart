@@ -28,6 +28,11 @@ class ContactService {
 
 @Entity()
 class ContactDemo{
+
+  bool get isHidden => _isHidden == null || _isHidden ? false: true;
+  set isHidden(bool value) =>  _isHidden = value;
+
+  bool _isHidden;
   String id;
   String name;
   int age;
