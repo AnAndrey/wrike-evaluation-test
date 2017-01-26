@@ -1,11 +1,9 @@
 part of table_directives;
 
-
-
 @Component(
     selector: 'table-demo',
     template: '''
-<filter-demo [sourceData]="rowsAux" [ffff]></filter-demo>
+<filter-demo [sourceData]="rowsAux" ></filter-demo>
 <table class="table table-striped table-bordered dataTable"
        role="grid" style="width: 100%;">
   <thead>
@@ -28,8 +26,8 @@ part of table_directives;
   </tbody>
 </table>
 ''',
-  directives: const [FilterDemo],)
-class TableDemo {
+  directives: const [FilterDemoComponent],)
+class TableDemoComponent {
   List _rows;
 
   bool isShown(dynamic item){
@@ -51,7 +49,6 @@ class TableDemo {
 
   void toggleSort(ColumnDemo column, MouseEvent event) {
     event.preventDefault();
-
 
     switch (column.sort) {
       case 'ASC':

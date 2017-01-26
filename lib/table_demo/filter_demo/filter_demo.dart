@@ -1,6 +1,5 @@
 import "package:angular2/core.dart";
 import 'filter_composite.dart';
-//import 'package:angular2/angular2.dart';
 
 @Component(
     selector: 'filter-demo',
@@ -18,55 +17,48 @@ import 'filter_composite.dart';
     </div>
   </div>
 </div>
-''')
-class FilterDemo{
+''',
+  providers: const [FilterComposite],
+)
+class FilterDemoComponent{
 
   List filterableData;
   FilterComposite filterComposite;
 
+  FilterDemoComponent(this.filterComposite){
+  }
+
   @Input() set sourceData(List data) {
     if(data!=null) {
       filterableData = data;
-      filterComposite = new FilterComposite( filterableData);
+      filterComposite.init(filterableData);
     }
   }
 
   void toggleCheckBox(String filterValue, String filterCategory, bool isChecked)
   {
-    print('toggleCheckBox ' + filterValue + ' ' + filterCategory + ' ' + isChecked.toString());
-
-    filterComposite.filters.where((f){
-      return f.name == filterCategory;
-    }).first.data[filterValue].checked = isChecked;
+    //print('toggleCheckBox ' + filterValue + ' ' + filterCategory + ' ' + isChecked.toString());
+    filterComposite.setFilterState(filterValue, filterCategory, isChecked);
 
     if(isChecked == true) {
-      filterableData.where((r) {return r.getFieldValue(filterCategory) == filterValue;})
-          .forEach((c) {c.isShown = !isChecked;});
+      hideRows(filterValue, filterCategory);
     }
-    else
-    {
-      // Get all rows with specific filterValue
-      var allHiddenRows = filterableData.where((r) {return r.isShown ;});
-      allHiddenRows.forEach((r) {filterComposite.maybeShouldEnable(r);});
+    else    {
+      showRows();
     }
 
-    refreshFilter();
+    filterComposite.refreshFilter(filterableData);
   }
 
-  void refreshFilter(){
-    // Filter with hidden categories
-    var r = filterableData.where((c) { return !c.isShown; }).toList();
-    var rebuiltFilter = new FilterComposite(r);
-
-    for(int t=0; t<filterComposite.filters.length; t++ )
-    {
-      filterComposite.filters[t].data.keys.forEach((k){
-        if(filterComposite.filters[t].data[k].checked){
-          rebuiltFilter.filters[t].data[k] = filterComposite.filters[t].data[k];
-        }
-      });
-    }
-    filterComposite = rebuiltFilter;
+  void hideRows(String filterValue, String filterCategory){
+    filterableData.where((r) {return r.getFieldValue(filterCategory) == filterValue;})
+        .forEach((c) {c.isShown = false;});
   }
 
+  void showRows()
+  {
+    // Get all rows with specific filterValue
+    var allHiddenRows = filterableData.where((r) {return r.isShown ;});
+    allHiddenRows.forEach((r) {filterComposite.maybeShouldEnable(r);});
+  }
 }

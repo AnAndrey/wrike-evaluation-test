@@ -8,6 +8,6 @@ part 'table_demo.dart';
 
 
 const TABLE_DIRECTIVES = const [
-  TableDemo,
+  TableDemoComponent,
   ColumnDemo
 ];

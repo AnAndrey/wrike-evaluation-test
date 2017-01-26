@@ -11,7 +11,7 @@ class ColumnDemo implements OnInit {
 
   ColumnDemo(this._tableComponent);
 
-  TableDemo _tableComponent;
+  TableDemoComponent _tableComponent;
 
   @override
   ngOnInit() {
