@@ -31,12 +31,6 @@ class FilterDemo{
     }
   }
 
-
-  ffff() {
-    print('fuck fuck');
-  }
-
-
   void toggleCheckBox(String filterValue, String filterCategory, bool isChecked)
   {
     print('toggleCheckBox ' + filterValue + ' ' + filterCategory + ' ' + isChecked.toString());
@@ -56,13 +50,14 @@ class FilterDemo{
       allHiddenRows.forEach((r) {filterComposite.maybeShouldEnable(r);});
     }
 
-
+    refreshFilter();
   }
 
   void refreshFilter(){
     // Filter with hidden categories
     var r = filterableData.where((c) { return !c.isShown; }).toList();
-    var rebuiltFilter = new FilterComposite(r );
+    var rebuiltFilter = new FilterComposite(r);
+
     for(int t=0; t<filterComposite.filters.length; t++ )
     {
       filterComposite.filters[t].data.keys.forEach((k){
