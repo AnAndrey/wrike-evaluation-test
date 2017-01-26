@@ -3,27 +3,22 @@
 
 import 'package:angular2/core.dart';
 import 'package:angular2/angular2.dart';
-import 'package:angular2/common.dart';
 
-import 'package:angular2_components/angular2_components.dart';
-import 'contact_service.dart';
+import 'contact_service/contact_lib.dart';
 import 'table_demo/table_directives.dart';
 
 
 @Component(
   selector: 'my-app',
   templateUrl: 'app_component.html',
-  directives: const [materialDirectives, CORE_DIRECTIVES , TABLE_DIRECTIVES],
+  directives: const [TABLE_DIRECTIVES],
   providers: const [ContactService],
 )
 class AppComponent implements OnInit {
   final ContactService contactService;
   List contacts;
 
-  AppComponent (this.contactService)
-  {
-    //getNames();
-  }
+  AppComponent (this.contactService);
 
   ngOnInit() async {
     try {
@@ -31,7 +26,7 @@ class AppComponent implements OnInit {
       contacts = contactService.contacts;
 
     } catch (arrr) {
-      print('Error initializing names: $arrr');
+      print('Error initializing contacts: $arrr');
     }
   }
 }
