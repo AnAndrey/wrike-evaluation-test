@@ -1,22 +1,11 @@
 part of table_directives;
 
+
+
 @Component(
     selector: 'table-demo',
     template: '''
-<div *ngIf="ff != null && ff.filters != null">
-  <div *ngFor="let filterItem of ff.filters" style="display: inline;">
-    <div class="dropdown" >
-        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" >{{filterItem.name}}
-            <span class="caret"></span></button>
-        <ul class="dropdown-menu">
-            <li *ngFor="let item of filterItem.data.keys">
-              <a href="#"><input type="checkbox" (click)="toggleCheckBox(item, filterItem.name, \$event.target.checked)" [(ngModel)]="filterItem.data[item].checked">{{item}}({{filterItem.data[item].count}})</a>
-            </li>
-        </ul>
-    </div>
-  </div>
-</div>
-
+<filter-demo [sourceData]="rowsAux" [ffff]></filter-demo>
 <table class="table table-striped table-bordered dataTable"
        role="grid" style="width: 100%;">
   <thead>
@@ -38,70 +27,27 @@ part of table_directives;
   </tr>
   </tbody>
 </table>
-''')
+''',
+  directives: const [FilterDemo],)
 class TableDemo {
   List _rows;
 
   bool isShown(dynamic item){
     return item.isShown;
   }
+
   @Input() set rows(List rows) {
     if(rows != null) {
-
       _rows = rows;
       rowsAux = rows.toList();
-      ff = new FilterComposite(filterColumns,rowsAux);
     }
   }
+
   List rowsAux;
-  FilterComposite ff;
+
   @Output() EventEmitter tableChanged = new EventEmitter();
 
   List<ColumnDemo> columns = [];
-  List filterColumns = ['gender', 'department', 'address.city'];
-  FilterSet testFilter;
-
-  List<FilterSet> getFilters(){
-    return ff == null? new List<FilterSet>() : ff.filters;
-  }
-  TableDemo(){
-
-  }
-
-  void toggleCheckBox(String filterValue, String filterCategory, bool isChecked)
-  {
-    print('toggleCheckBox ' + filterValue + ' ' + filterCategory + ' ' + isChecked.toString());
-
-    ff.filters.where((f){
-      return f.name == filterCategory;
-    }).first.data[filterValue].checked = isChecked;
-
-    //rowsAux = _rows.toList();
-
-    if(isChecked == true) {
-      rowsAux.where((r) {return r.getFieldValue(filterCategory) == filterValue;})
-             .forEach((c) {c.isShown = !isChecked;});
-    }
-    else
-    {
-      // Get all rows with specific filterValue
-      var allHiddenRows = rowsAux.where((r) {return r.isShown ;});
-      allHiddenRows.forEach((r) {ff.maybeShouldEnable(r);});
-    }
-    // Filter with hidden categories
-    var r = rowsAux.where((c) { return !c.isShown; }).toList();
-    var rebuiltFilter = new FilterComposite(filterColumns,r );
-    for(int t=0; t<ff.filters.length; t++ )
-    {
-      ff.filters[t].data.keys.forEach((k){
-        if(ff.filters[t].data[k].checked){
-          rebuiltFilter.filters[t].data[k] = ff.filters[t].data[k];
-        }
-      });
-
-    }
-    ff = rebuiltFilter;
-  }
 
   void toggleSort(ColumnDemo column, MouseEvent event) {
     event.preventDefault();
@@ -132,59 +78,5 @@ class TableDemo {
       if (c.fieldName != column.fieldName && c.sort != 'NO_SORTABLE')
         c.sort = 'NONE';
     });
-  }
-
-  bool isExclude(){
-    return false;
-  }
-}
-class FilterItem
-{
-  bool checked = false;
-  int count =1;
-}
-class FilterSet{
-  String name;
-  SplayTreeMap<String, FilterItem> data;
-
-  FilterSet(this.name){
-    this.data = new SplayTreeMap<String, FilterItem>();
-  }
-
-  void AddFilterKey(String s) {
-    if(data.containsKey(s)){
-      data[s].count++;
-    }
-    else{
-      data[s] = new FilterItem();
-    }
-  }
-}
-
-class FilterComposite{
-
-  List<FilterSet> filters = new List<FilterSet>();
-
-  FilterComposite(List<String> names, List filterableData){
-
-    names.forEach((n) {
-      var filter = new FilterSet(n);
-      filterableData.forEach((d){
-        filter.AddFilterKey(d.getFieldValue(n));
-      });
-      filters.add(filter);
-    });
-  }
-
-  void maybeShouldEnable(dynamic r) {
-    bool showRow = true;
-    filters.forEach((f) {
-      var value = r.getFieldValue(f.name);
-      if(f.data[value] != null && f.data[value].checked) {
-        showRow = false;
-        return;
-      }
-    });
-    r.isShown = showRow;
   }
 }
