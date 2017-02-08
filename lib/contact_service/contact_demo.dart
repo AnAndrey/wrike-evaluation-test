@@ -15,7 +15,6 @@ class ContactDemo{
   AddressDemo address;
 
   @Property(ignore:true)
-  bool isActive;
 
   dynamic getFieldValue(String fieldName){
 

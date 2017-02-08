@@ -28,20 +28,16 @@ part of table_directives;
 ''',
   directives: const [FilterDemoComponent],)
 class TableDemoComponent {
-  List _rows;
-
+  List rowsAux;
   bool isShown(dynamic item){
     return item.isShown;
   }
 
   @Input() set rows(List rows) {
     if(rows != null) {
-      _rows = rows;
       rowsAux = rows.toList();
     }
   }
-
-  List rowsAux;
 
   @Output() EventEmitter tableChanged = new EventEmitter();
 
@@ -67,8 +63,6 @@ class TableDemoComponent {
             r2.getFieldValue(column.fieldName));
         return column.sort == 'ASC' ? comparison : -comparison;
       });
-    } else {
-      rowsAux = _rows.toList();
     }
 
     columns.forEach((c) {
